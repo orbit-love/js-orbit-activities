@@ -1,4 +1,3 @@
-const pkg = require('../package.json')
 const axios = require('axios')
 const qs = require('querystring')
 
@@ -12,7 +11,7 @@ const call = (client, method, endpoint, query, data) => {
             data,
             headers: {
                 Authorization: `Bearer ${credentials.orbitApiKey}`,
-                'User-Agent': `js-orbit-activities/${pkg.version}`
+                'User-Agent': credentials.userAgent
             }
         }).then(resp => {
             resolve(resp.data)

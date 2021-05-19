@@ -1,16 +1,21 @@
+const pkg = require('../package.json')
+const create = require('./crud/create')
 const read = require('./crud/read')
+const update = require('./crud/update')
+const destroy = require('./crud/destroy')
 
 class OrbitActivities {
-	constructor(orbitWorkspaceId, orbitApiKey) {
-        this.credentials = this.setCredentials(orbitWorkspaceId, orbitApiKey)
+	constructor(orbitWorkspaceId, orbitApiKey, userAgent) {
+        this.credentials = this.setCredentials(orbitWorkspaceId, orbitApiKey, userAgent)
 	}
 
-    setCredentials(orbitWorkspaceId, orbitApiKey) {
+    setCredentials(orbitWorkspaceId, orbitApiKey, userAgent) {
         if(!(orbitWorkspaceId || process.env.ORBIT_WORKSPACE_ID)) throw new Error('You must provide an Orbit Workspace ID when initializing Orbit or by setting an ORBIT_WORKSPACE_ID environment variable')
         if(!(orbitApiKey || process.env.ORBIT_API_KEY)) throw new Error('You must provide an Orbit API Key when initializing Orbit or by setting an ORBIT_API_KEY environment variable')
         return {
             orbitWorkspaceId: orbitWorkspaceId || process.env.ORBIT_WORKSPACE_ID,
             orbitApiKey: orbitApiKey || process.env.ORBIT_API_KEY,
+            userAgent: userAgent || `js-orbit-activities/${pkg.version}`
         }
     }
 
@@ -29,26 +34,27 @@ class OrbitActivities {
         return read.activity(this, id)
     }
 
-    createActivity() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                resolve()
-            } catch(error) {
-                reject(error)
-            }
-        })
+    createActivity(id, data) {
+        if(typeof id === 'object') data = id
+        if(!data) throw new Error('You must provide a payload when creating activities')
+        if(typeof id === 'string') {
+            return create.activityByMember(this, id, data)
+        } else {
+            return create.activity(this, data)
+        }
     }
 
-    createContent() {
-
+    updateActivity(memberId, activityId, data) {
+        if(!memberId) throw new Error('You must provide a memberId as the first parameter')
+        if(!activityId) throw new Error('You must provide an activityId as the second parameter')
+        if(!data) throw new Error('You must provide a data object as the third parameter')
+        return update.activity(this, memberId, activityId, data)
     }
 
-    updateActivity() {
-
-    }
-
-    deleteActivity() {
-
+    deleteActivity(memberId, activityId) {
+        if(!memberId) throw new Error('You must provide a memberId as the first parameter')
+        if(!activityId) throw new Error('You must provide an activityId as the second parameter')
+        return destroy.activity(this, memberId, activityId)
     }
 }
 
