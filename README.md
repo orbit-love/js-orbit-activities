@@ -196,7 +196,7 @@ orbitActivities.deleteActivity(memberId, activityId).then(data => {
 
 ## Contributing
 
-We 💜 contributions from everyone! Check out the [Contributing Guidelines](CONTRIBUTING.md) for more information.
+We 💜 contributions from everyone! Check out the [Contributing Guidelines](.github.CONTRIBUTING.md) for more information.
 
 ## License
 
@@ -204,4 +204,4 @@ This is available as open source under the terms of the [MIT License](LICENSE).
 
 ## Code of Conduct
 
-This project uses the [Contributor Code of Conduct](CODE_OF_CONDUCT.md). We ask everyone to please adhere by its guidelines.
+This project uses the [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md). We ask everyone to please adhere by its guidelines.
