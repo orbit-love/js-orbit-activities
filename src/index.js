@@ -29,16 +29,16 @@ class OrbitActivities {
         return read.memberActivities(this, memberId, query)
     }
 
-    getActivity(id) {
-        if(!id) throw new Error('You must provide an activity id')
-        return read.activity(this, id)
+    getActivity(activityId) {
+        if(!activityId) throw new Error('You must provide an activity id')
+        return read.activity(this, activityId)
     }
 
-    createActivity(id, data) {
-        if(typeof id === 'object') data = id
+    createActivity(memberId, data) {
+        if(typeof memberId === 'object') data = memberId
         if(!data) throw new Error('You must provide a payload when creating activities')
-        if(typeof id === 'string') {
-            return create.activityByMember(this, id, data)
+        if(typeof memberId === 'string') {
+            return create.activityByMember(this, memberId, data)
         } else {
             return create.activity(this, data)
         }
