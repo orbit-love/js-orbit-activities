@@ -1,7 +1,7 @@
 {
   "name": "@orbit-love/activities",
-  "version": "0.1.1",
-  "description": "Orbit API client for Node.js. API support for activity operations.",
+  "version": "0.2.0",
+  "description": "Orbit API client for Node.js. API support for activity and note operations.",
   "main": "./src/index.js",
   "scripts": {
     "test": "jest"

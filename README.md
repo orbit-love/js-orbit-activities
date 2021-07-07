@@ -40,7 +40,7 @@ If you have environment variables set and also pass in values, the passed in val
 - [Information about Orbit API Rate Limiting](https://docs.orbit.love/reference#rate-limiting)
 - For list methods, you can ask request a number of results per request between 1 and 100.
 
-## Methods
+## Activity Methods
 
 <details>
 <summary><code>listWorkspaceActivities(options)</code></summary>
@@ -87,6 +87,21 @@ orbitActivities.listMemberActivities(memberId, options).then(data => {
 [__List activities for a member__ API reference.](https://docs.orbit.love/reference#get_-workspace-id-members-member-id-activities)
 </details>
 
+<details>
+<summary><code>getLatestActivityTimestamp(activityType)</code></summary>
+
+```js
+const activityType = 'issued:opened'
+
+orbitActivities.getLatestActivityTimestamp(activityType).then(data => {
+    console.log(data)
+}).catch(error => {
+    console.error(error)
+})
+```
+
+Will return the timestamp of the latest activity with the provided type, or null if there are none.
+</details>
 
 <details>
 <summary><code>getActivity(activityId)</code></summary>
@@ -192,6 +207,65 @@ orbitActivities.deleteActivity(memberId, activityId).then(data => {
 ```
 
 [__Delete a post activity__ API reference.](https://docs.orbit.love/reference#delete_-workspace-id-members-member-id-activities-id)
+</details>
+
+
+## Note Methods
+
+<details>
+<summary><code>listMemberNotes(memberId, options)</code></summary>
+
+```js
+const memberId = 'janesmith04'
+const options = {
+    page: 1
+}
+
+orbitActivities.listMemberNotes(memberId, options).then(data => {
+    console.log(data)
+}).catch(error => {
+    console.error(error)
+})
+```
+
+`options` is not a required parameter, but can be any query parameter shown in our API reference.
+
+[__Get the member's notes__ API reference.](https://docs.orbit.love/reference#get_-workspace-id-members-member-id-notes)
+</details>
+
+<details>
+<summary><code>createNote(memberId, body)</code></summary>
+
+```js
+const memberId = 'janesmith04'
+const body = 'Had a really excellent interview with Jane today.'
+
+orbitActivities.createNote(memberId, body).then(data => {
+    console.log(data)
+}).catch(error => {
+    console.error(error)
+})
+```
+
+[__Create a note__ API reference.](https://docs.orbit.love/reference#post_-workspace-id-members-member-id-notes)
+</details>
+
+<details>
+<summary><code>updateNote(memberId, noteId, body)</code></summary>
+
+```js
+const memberId = 'janesmith04'
+const noteId = '12345'
+const body = 'Had a really excellent interview with Jane today. Here is some more info.'
+
+orbitActivities.updateNote(memberId, noteId, body).then(data => {
+    console.log(data)
+}).catch(error => {
+    console.error(error)
+})
+```
+
+[__Update a note__ API reference.](https://docs.orbit.love/reference#put_-workspace-id-members-member-id-notes-id)
 </details>
 
 ## Contributing
