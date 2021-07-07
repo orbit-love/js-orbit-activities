@@ -410,7 +410,7 @@ describe('orbitActivities updateActivity', () => {
       dataKey: 'dataValue'
     })
 
-    expect(response).toBe('activity 456 on member 123 was updated')
+    expect(response).toBe('activity 456 on member 123 updated')
   })
 
   it('when there is an error, return error', async () => {
@@ -423,7 +423,228 @@ describe('orbitActivities updateActivity', () => {
   })
 })
 
-////////
+describe('orbitActivities deleteActivity', () => {
+  let sut
+  beforeEach(() => {
+    sut = new OrbitActivities('1', '2')
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
+
+  it('if parameters are missing, throws', async () => {
+    await expect(sut.deleteActivity()).rejects.toThrow(
+      'You must provide a memberId as the first parameter'
+    )
+    await expect(sut.deleteActivity('1')).rejects.toThrow(
+      'You must provide an activityId as the second parameter'
+    )
+  })
+
+  it('calls axios correctly', async () => {
+    axios.mockResolvedValueOnce({})
+
+    await sut.deleteActivity('123', '456')
+
+    const firstCall = axios.mock.calls[0][0]
+    const path = url
+      .parse(firstCall.url, true)
+      .path.split('v1')[1]
+      .split('?')[0]
+    const memberId = path.split('/')[3]
+    const activityId = path.split('/')[5]
+
+    expect(memberId).toBe('123')
+    expect(activityId).toBe('456')
+  })
+
+  it('returns success message correctly', async () => {
+    axios.mockResolvedValueOnce({})
+
+    const response = await sut.deleteActivity('123', '456')
+
+    expect(response).toBe('activity 456 on member 123 deleted')
+  })
+
+  it('when there is an error, return error', async () => {
+    const errorMessage = 'Network Error'
+    axios.mockImplementationOnce(() => {
+      return Promise.reject(new Error(errorMessage))
+    })
+
+    await expect(sut.deleteActivity('1', '2')).rejects.toThrow(errorMessage)
+  })
+})
+
+describe('OrbitActivities createNote', () => {
+  let sut
+  beforeEach(() => {
+    sut = new OrbitActivities('1', '2')
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
+
+  it('if memberId or body is not provided, throws', async () => {
+    await expect(sut.createNote()).rejects.toThrow(
+      'You must provide a memberId and body'
+    )
+    await expect(sut.createNote('1')).rejects.toThrow(
+      'You must provide a memberId and body'
+    )
+  })
+
+  it('if parameters are the wrong type, throws', async () => {
+    const stringError = 'parameters must be strings'
+    await expect(sut.createNote(123, 'string')).rejects.toThrow(stringError)
+    await expect(sut.createNote('string', {})).rejects.toThrow(stringError)
+  })
+
+  it('returns data in the correct format', async () => {
+    axios.mockResolvedValueOnce({ data: {} })
+    const response = await sut.createNote('123', '456')
+    expect(response).toMatchObject({})
+  })
+
+  it('when there is an error, return error', async () => {
+    const errorMessage = 'Network Error'
+    axios.mockImplementationOnce(() => {
+      return Promise.reject(new Error(errorMessage))
+    })
+
+    await expect(sut.createNote('123', '456')).rejects.toThrow(errorMessage)
+  })
+})
+
+describe('OrbitActivities listMemberNotes', () => {
+  let sut
+  beforeEach(() => {
+    sut = new OrbitActivities('1', '2')
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
+
+  it('if memberId is not provided, throws', async () => {
+    await expect(sut.listMemberNotes()).rejects.toThrow(
+      'You must provide a memberId'
+    )
+  })
+
+  it('if memberId is not a string, throws', async () => {
+    const errorText = 'memberId must be a string'
+    await expect(sut.listMemberNotes(123)).rejects.toThrow(errorText)
+    await expect(sut.listMemberNotes(true)).rejects.toThrow(errorText)
+    await expect(sut.listMemberNotes({})).rejects.toThrow(errorText)
+  })
+
+  it('returns data in correct format', async () => {
+    const toReturn = setActivitiesResponse({ nextPage: 3 })
+    axios.mockResolvedValueOnce(toReturn)
+
+    const response = await sut.listMemberNotes('123')
+
+    expect(response.data.length).toBe(2)
+    expect(response.data.included).not.toBeNull()
+    expect(response.items).toBe(2)
+    expect(response.nextPage).toBe(3)
+  })
+
+  it('given nextPageUrl, provides nextPage integer', async () => {
+    const toReturn = setActivitiesResponse({ nextPage: 4 })
+    axios.mockResolvedValueOnce(toReturn)
+
+    const response = await sut.listMemberNotes('123')
+
+    expect(response.nextPage).toBe(4)
+  })
+
+  it('given no nextPageUrl, sets nextPage to null', async () => {
+    const toReturn = setActivitiesResponse({ nextPage: null })
+    axios.mockResolvedValueOnce(toReturn)
+
+    const response = await sut.listMemberNotes('123')
+
+    expect(response.nextPage).toBeNull()
+  })
+
+  it('when there is an error, return error', async () => {
+    const errorMessage = 'Network Error'
+    axios.mockImplementationOnce(() => {
+      return Promise.reject(new Error(errorMessage))
+    })
+
+    await expect(sut.listMemberNotes('123')).rejects.toThrow(errorMessage)
+  })
+})
+
+describe('orbitActivities updateNote', () => {
+  let sut
+  beforeEach(() => {
+    sut = new OrbitActivities('1', '2')
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+  })
+
+  it('if parameters are missing, throws', async () => {
+    await expect(sut.updateNote()).rejects.toThrow(
+      'You must provide a memberId as the first parameter'
+    )
+    await expect(sut.updateNote('1')).rejects.toThrow(
+      'You must provide a noteId as the second parameter'
+    )
+    await expect(sut.updateNote('1', '2')).rejects.toThrow(
+      'You must provide a body as the third parameter'
+    )
+  })
+
+  it('if body is not a string, throws', async () => {
+    await expect(sut.updateNote('123', '456', 1)).rejects.toThrow(
+      'body must be a string'
+    )
+  })
+
+  it('calls axios correctly', async () => {
+    axios.mockResolvedValueOnce({})
+
+    await sut.updateNote('123', '456', 'new value')
+
+    const firstCall = axios.mock.calls[0][0]
+    console.log(firstCall)
+    const path = url
+      .parse(firstCall.url, true)
+      .path.split('v1')[1]
+      .split('?')[0]
+    const memberId = path.split('/')[3]
+    const activityId = path.split('/')[5]
+
+    expect(memberId).toBe('123')
+    expect(activityId).toBe('456')
+    expect(firstCall.data.body).toBe('new value')
+  })
+
+  it('returns success message correctly', async () => {
+    axios.mockResolvedValueOnce({})
+
+    const response = await sut.updateNote('123', '456', '567')
+
+    expect(response).toBe('note 456 on member 123 updated')
+  })
+
+  it('when there is an error, return error', async () => {
+    const errorMessage = 'Network Error'
+    axios.mockImplementationOnce(() => {
+      return Promise.reject(new Error(errorMessage))
+    })
+
+    await expect(sut.updateNote('1', '2', '3')).rejects.toThrow(errorMessage)
+  })
+})
 
 function setActivitiesResponse(params) {
   const next = params?.nextPage

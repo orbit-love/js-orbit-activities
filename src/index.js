@@ -101,25 +101,67 @@ class OrbitActivities {
             if(!activityId) throw new Error('You must provide an activityId as the second parameter')
             if(!data) throw new Error('You must provide a data object as the third parameter')
             await this.api(this.credentials, 'PUT', `/members/${memberId}/activities/${activityId}`, null, data)
-            return `activity ${activityId} on member ${memberId} was updated`
+            return `activity ${activityId} on member ${memberId} updated`
         } catch(error) {
             throw new Error(error)
         }
-        // return update.activity(this, memberId, activityId, data)
     }
 
-    // updateActivity(memberId, activityId, data) {
-    //     if(!memberId) throw new Error('You must provide a memberId as the first parameter')
-    //     if(!activityId) throw new Error('You must provide an activityId as the second parameter')
-    //     if(!data) throw new Error('You must provide a data object as the third parameter')
-    //     return update.activity(this, memberId, activityId, data)
-    // }
+    async deleteActivity(memberId, activityId) {
+        try {
+            if(!memberId) throw new Error('You must provide a memberId as the first parameter')
+            if(!activityId) throw new Error('You must provide an activityId as the second parameter')
+            await this.api(this.credentials, 'DELETE', `/members/${memberId}/activities/${activityId}`)
+            return `activity ${activityId} on member ${memberId} deleted`
+        } catch(error) {
+            throw new Error(error)
+        }
+    }
 
-    // deleteActivity(memberId, activityId) {
-    //     if(!memberId) throw new Error('You must provide a memberId as the first parameter')
-    //     if(!activityId) throw new Error('You must provide an activityId as the second parameter')
-    //     return destroy.activity(this, memberId, activityId)
-    // }
+
+    async listMemberNotes(memberId, query = {}) {
+        try {
+            if(!memberId) throw new Error('You must provide a memberId')
+            if(typeof memberId !== 'string') throw new Error('memberId must be a string')
+
+            const response = await this.api(this.credentials, 'GET', `/members/${memberId}/notes`, query)
+            const nextPage = getNextPageFromURL(response.links.next)
+
+            return {
+                data: response.data,
+                included: response.included,
+                items: response.data.length,
+                nextPage
+            }
+
+        } catch(error) {
+            throw new Error(error)
+        }
+    }
+
+    async createNote(memberId, body) {
+        try {
+            if(!memberId || !body) throw new Error('You must provide a memberId and body')
+            if(typeof memberId !== 'string' || typeof body !== 'string') throw new Error('parameters must be strings')
+            const response = await this.api(this.credentials, 'POST', `/members/${memberId}/notes`, null, { body })
+            return response
+        } catch(error) {
+            throw new Error(error)
+        }
+    }
+
+    async updateNote(memberId, noteId, body) {
+        try {
+            if(!memberId) throw new Error('You must provide a memberId as the first parameter')
+            if(!noteId) throw new Error('You must provide a noteId as the second parameter')
+            if(!body) throw new Error('You must provide a body as the third parameter')
+            await this.api(this.credentials, 'PUT', `/members/${memberId}/notes/${noteId}`, null, { body })
+            if(typeof body !== 'string') throw new Error('body must be a string')
+            return `note ${noteId} on member ${memberId} updated`
+        } catch(error) {
+            throw new Error(error)
+        }
+    }
 
     async api(credentials, method, endpoint, query = {}, data = {}) {
         try {
