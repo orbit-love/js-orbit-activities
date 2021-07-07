@@ -233,6 +233,77 @@ describe('OrbitActivities getActivity', () => {
   })
 })
 
+
+describe('OrbitActivities getLatestActivityTimestamp', () => {
+  let sut
+  beforeEach(() => {
+    sut = new OrbitActivities('1', '2')
+  })
+
+  it('given type is missing, throws', async () => {
+    await expect(sut.getLatestActivityTimestamp()).rejects.toThrow(
+      'You must provide a type'
+    )
+  })
+
+  it('given type is not a string, throws', async () => {
+    await expect(sut.getLatestActivityTimestamp(123)).rejects.toThrow(
+      'type must be a string'
+    )
+  })
+
+  it('given correct parameters, calls listMemberActivities', async () => {
+    const toReturn = {
+      data: {
+        data: [
+          { attributes: { created_at: '2021-07-07T12:00:00.000Z' } },
+          { attributes: { created_at: '2021-07-07T11:00:00.000Z' } }
+        ]
+      }
+    }
+    axios.mockResolvedValueOnce(toReturn)
+
+    const spy = jest.spyOn(sut, 'listWorkspaceActivities')
+    sut.getLatestActivityTimestamp('type')
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  it('given existing activities, return first created_at', async () => {
+    const toReturn = {
+      data: {
+        data: [
+          { attributes: { created_at: '2021-07-07T12:00:00.000Z' } },
+          { attributes: { created_at: '2021-07-07T11:00:00.000Z' } }
+        ]
+      }
+    }
+    axios.mockResolvedValueOnce(toReturn)
+    const response = await sut.getLatestActivityTimestamp('123')
+    expect(response).toBe('2021-07-07T12:00:00.000Z')
+  })
+
+  it('given no existing activities, return null', async () => {
+    const toReturn = {
+      data: {
+        data: []
+      }
+    }
+    axios.mockResolvedValueOnce(toReturn)
+    const response = await sut.getLatestActivityTimestamp('123')
+    expect(response).toBeNull()
+  })
+
+  it('when there is an error, return error', async () => {
+    const errorMessage = 'Network Error'
+    axios.mockImplementationOnce(() => {
+      return Promise.reject(new Error(errorMessage))
+    })
+    await expect(sut.getLatestActivityTimestamp('123')).rejects.toThrow(
+      errorMessage
+    )
+  })
+})
+
 describe('OrbitActivities createActivity', () => {
   let sut
   beforeEach(() => {
@@ -615,7 +686,6 @@ describe('orbitActivities updateNote', () => {
     await sut.updateNote('123', '456', 'new value')
 
     const firstCall = axios.mock.calls[0][0]
-    console.log(firstCall)
     const path = url
       .parse(firstCall.url, true)
       .path.split('v1')[1]
@@ -645,6 +715,7 @@ describe('orbitActivities updateNote', () => {
     await expect(sut.updateNote('1', '2', '3')).rejects.toThrow(errorMessage)
   })
 })
+
 
 function setActivitiesResponse(params) {
   const next = params?.nextPage
