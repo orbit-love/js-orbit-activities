@@ -270,7 +270,7 @@ orbitActivities.updateNote(memberId, noteId, body).then(data => {
 
 ## Contributing
 
-We 💜 contributions from everyone! Check out the [Contributing Guidelines](.github.CONTRIBUTING.md) for more information.
+We 💜 contributions from everyone! Check out the [Contributing Guidelines](.github/CONTRIBUTING.md) for more information.
 
 ## License
 
